@@ -2,17 +2,21 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'The Illusion Squid'
+-- shared_scripts {
+-- }
+
 
 client_scripts {
-    'client/main.lua'
+	'@menuv/menuv.lua',
+    'client/main.lua',
+	'client/menu.lua',
+	'config.lua'
 }
 
 server_scripts {
-    'server/main.lua'
-}
-
-shared_scripts {
-    'config.lua'
+	'@oxmysql/lib/MySQL.lua',
+    'server/main.lua',
+	'config.lua'
 }
 
 ui_page {
@@ -25,3 +29,5 @@ files {
 	'html/js/app.js',
 	'html/fonts/*.ttf',
 }
+
+dependency 'menuv'

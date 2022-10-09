@@ -141,10 +141,11 @@ local menu_creation_finish = menu_creation:AddButton({
 
 menu_creation_finish:On("select", function (_)
     local label = LocalInput("Landing Zone Name", 255)
-    TriggerServerEvent("tis-skydiving:server:AddLandingZone", label, vehPos, vehHeading, pos, flares)
+    TriggerServerEvent("tis-skydiving:server:AddLandingZone", label, vehPos, vehHeading, pos, flares, radius)
     count = 6
     radius = 5
     MenuV:CloseMenu(menu_creation)
+    MenuV:CloseMenu(menu1)
 end)
 
 RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveSession)
@@ -181,7 +182,7 @@ RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveS
                 label = location.label,
                 value = location.label,
                 select = function (_)
-                    TriggerServerEvent("tis-skydiving:server:StartSkydiving", location.veh_pos, location.veh_heading, location.land_pos, location.flares)
+                    TriggerServerEvent("tis-skydiving:server:StartSkydiving", location.veh_pos, location.veh_heading, location.land_pos, location.flares, location.radius)
                     MenuV:CloseMenu(menu_jumps)
                     MenuV:CloseMenu(menu1)
                 end

@@ -14,7 +14,7 @@ AddEventHandler("tis-skydiving:server:DeleteLandingZone", function ()
 end)
 
 RegisterServerEvent("tis-skydiving:server:StartSkydiving")
-AddEventHandler("tis-skydiving:server:StartSkydiving", function (vehPos, vehHeading, pos, flares)
+AddEventHandler("tis-skydiving:server:StartSkydiving", function (vehPos, vehHeading, pos, flares, radius)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
 
@@ -24,7 +24,7 @@ AddEventHandler("tis-skydiving:server:StartSkydiving", function (vehPos, vehHead
     end
 
 	if Player.PlayerData.job.name == "skydive" then
-        TriggerClientEvent("tis-skydiving:client:StartSkydiving", -1, pos, flares)
+        TriggerClientEvent("tis-skydiving:client:StartSkydiving", -1, pos, flares, radius)
         veh = CreateVehicle(GetHashKey(Config.Transport.model), vehPos.x, vehPos.y, vehPos.z, vehHeading, true, true)
         inSkydiveSession = true
         Citizen.Wait(3000)
@@ -42,16 +42,18 @@ AddEventHandler("tis-skydiving:server:EndSkydiving", function ()
 end)
 
 RegisterServerEvent("tis-skydiving:server:AddLandingZone")
-AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, vehHeading, pos, flares)
+AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, vehHeading, pos, flares, radius)
     local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
+    print(radius)
 	if Player.PlayerData.job.name == "skydive" then
-        MySQL.Async.insert('INSERT INTO skydive_location (label, veh_pos, veh_heading, land_pos, flares) VALUES (:label, :veh_pos, :veh_heading, :land_pos, :flares)', {
+        MySQL.Async.insert('INSERT INTO skydive_location (label, veh_pos, veh_heading, land_pos, flares, radius) VALUES (:label, :veh_pos, :veh_heading, :land_pos, :flares, :radius)', {
             label = label,
             veh_pos = json.encode(vehPos),
             veh_heading = vehHeading,
             land_pos = json.encode(pos),
-            flares = json.encode(flares)
+            flares = json.encode(flares),
+            radius = radius
         })
 	else
 		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
@@ -88,7 +90,8 @@ QBCore.Commands.Add("skydive", "Opens skydiving menu", {}, false, function(sourc
                         veh_pos = json.decode(row.veh_pos),
                         veh_heading = row.veh_pos,
                         land_pos = json.decode(row.land_pos),
-                        flares = json.decode(row.flares)
+                        flares = json.decode(row.flares),
+                        radius = row.radius*1.0 -- Make sure it's a float
                     })
                 end
                 TriggerClientEvent("tis-skydiving:client:OpenMenu", src, locations, inSkydiveSession)

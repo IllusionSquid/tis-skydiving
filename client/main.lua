@@ -29,6 +29,7 @@ local inTeam = false
 
 local TeamBlips = {}
 local dropzone = nil
+local dropRadiusBlip = nil
 
 -- Functions
 local function CreateTeamBlips(playerId, playerLabel, playerLocation)
@@ -277,19 +278,22 @@ end)
 --     end
 -- end)
 
-RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares)
+RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares, radius)
     inTeam = QBCore.Functions.HasItem(Config.Tracker)
 
     if inTeam then
         dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
         SetBlipSprite (dropzone, 164)
-        SetBlipDisplay(dropzone, 4)
+        SetBlipDisplay(dropzone, 6)
         -- SetBlipScale(dropzone, 1)
-        SetBlipAsShortRange(dropzone, true)
+        SetBlipAsShortRange(dropzone, false)
         SetBlipColour(dropzone, 3)
         BeginTextCommandSetBlipName("STRING")
         AddTextComponentSubstringPlayerName("Drop Zone")
         EndTextCommandSetBlipName(dropzone)
+        dropRadiusBlip = AddBlipForRadius(pos.x, pos.y, pos.z, radius)
+        SetBlipColour(dropRadiusBlip, 3)
+        SetBlipAlpha(dropRadiusBlip, 128)
     end
 
     PlaceLocationFlares(flares)
@@ -299,6 +303,10 @@ RegisterNetEvent('tis-skydiving:client:EndSkydiving', function()
     if dropzone ~= nil then
         RemoveBlip(dropzone)
         dropzone = nil
+    end
+    if dropRadiusBlip ~= nil then
+        RemoveBlip(dropRadiusBlip)
+        dropRadiusBlip = nil
     end
     RemoveFlares()
 end)

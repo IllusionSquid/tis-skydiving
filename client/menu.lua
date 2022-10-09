@@ -51,19 +51,11 @@ local menu1 = MenuV:CreateMenu(false, "Skydiving", menuLocation, 220, 20, 60, 's
 local menu_jumps = MenuV:CreateMenu(false, "Skydiving Locations", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test2')
 local menu_creation = MenuV:CreateMenu(false, "Skydiving Creation", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test3')
 
-menu1:AddButton({
-    icon = '📍',
-    label = "Locations",
-    value = menu_jumps,
-    description = "Jump Locations"
-})
+menu1:On("close", function ()
+    menu1.ClearItems(menu1, true)
+    menu1.ClearItems(menu_jumps, true)
+end)
 
-menu1:AddButton({
-    icon = '🔧',
-    label = "Add Locations",
-    value = menu_creation,
-    description = "Jump Locations"
-})
 
 menu_creation:On("open", function ()
     RemoveFlares()
@@ -155,17 +147,46 @@ menu_creation_finish:On("select", function (_)
     MenuV:CloseMenu(menu_creation)
 end)
 
-RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations)
-    for k, location in pairs(locations) do
-        menu_jumps:AddButton({
-            icon = "",
-            label = location.label,
-            value = location.label,
+RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveSession)
+    print(inSkydiveSession)
+    if inSkydiveSession then
+        menu1:AddButton({
+            icon = '🛑',
+            label = "End Session",
+            value = "endsession",
+            description = "Ends skydiving Session",
             select = function (_)
-                PlaceLocationFlares(location.flares)
-                PlaceLocationVehicle(location.veh_pos, location.veh_heading)
+                TriggerServerEvent("tis-skydiving:server:EndSkydiving")
+                MenuV:CloseMenu(menu1)
             end
         })
+
+    else
+        menu1:AddButton({
+            icon = '📍',
+            label = "Locations",
+            value = menu_jumps,
+            description = "Jump Locations"
+        })
+        menu1:AddButton({
+            icon = '🔧',
+            label = "Add Locations",
+            value = menu_creation,
+            description = "Jump Locations"
+        })
+        for k, location in pairs(locations) do
+
+            menu_jumps:AddButton({
+                icon = "",
+                label = location.label,
+                value = location.label,
+                select = function (_)
+                    TriggerServerEvent("tis-skydiving:server:StartSkydiving", location.veh_pos, location.veh_heading, location.land_pos, location.flares)
+                    MenuV:CloseMenu(menu_jumps)
+                    MenuV:CloseMenu(menu1)
+                end
+            })
+        end
     end
     MenuV:OpenMenu(menu1)
 end)

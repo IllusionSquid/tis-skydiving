@@ -27,6 +27,37 @@ local inTeam = false
 --     end
 -- end)
 
+local TeamBlips = {}
+
+-- Functions
+local function CreateTeamBlips(playerId, playerLabel, playerLocation)
+    local ped = GetPlayerPed(playerId)
+    local blip = GetBlipFromEntity(ped)
+    if not DoesBlipExist(blip) then
+        if NetworkIsPlayerActive(playerId) then
+            blip = AddBlipForEntity(ped)
+        else
+            blip = AddBlipForCoord(playerLocation.x, playerLocation.y, playerLocation.z)
+        end
+        SetBlipSprite(blip, 1)
+        ShowHeadingIndicatorOnBlip(blip, true)
+        SetBlipRotation(blip, math.ceil(playerLocation.w))
+        SetBlipScale(blip, 1.0)
+        SetBlipColour(blip, 27)
+        SetBlipAsShortRange(blip, true)
+        BeginTextCommandSetBlipName('STRING')
+        AddTextComponentString(playerLabel)
+        EndTextCommandSetBlipName(blip)
+        TeamBlips[#TeamBlips+1] = blip
+    end
+
+    -- if GetBlipFromEntity(PlayerPedId()) == blip then
+    --     -- Ensure we remove our own blip.
+    --     RemoveBlip(blip)
+    -- end
+    -- print("ejijf")
+end
+
 local particle = nil
 local particles = {}
 
@@ -44,7 +75,7 @@ function PlaceFlares(coords, radius, count)
         RequestNamedPtfxAsset(PtfxAsset)
         print(PtfxAsset)
         while not HasNamedPtfxAssetLoaded(PtfxAsset) do
-            Wait(10)
+            Citizen.Wait(10)
         end
     end
 
@@ -69,7 +100,7 @@ function PlaceFlares(coords, radius, count)
         UseParticleFxAssetNextCall(PtfxAsset) -- Prepare the Particle FX for the next upcomming Particle FX call
         local part = StartParticleFxLoopedAtCoord("exp_grd_flare", adjusted.x, adjusted.y, groundZ, 0.0, 0.0, 0.0, 1.0, false, false, false, false)
         table.insert(particles, part)
-        table.insert(flares, {x = adjusted.x, y = adjusted.y, groundZ})
+        table.insert(flares, {x = adjusted.x, y = adjusted.y, z = groundZ})
     end
 
     local retval --[[ boolean ]], groundZ --[[ number ]] =
@@ -86,11 +117,29 @@ function PlaceFlares(coords, radius, count)
     UseParticleFxAssetNextCall(PtfxAsset) -- Prepare the Particle FX for the next upcomming Particle FX call
     local part = StartParticleFxLoopedAtCoord("exp_grd_flare", coords.x, coords.y, groundZ, 0.0, 0.0, 1.0, 1.0, false, false, false, false)
     table.insert(particles, part)
-    table.insert(flares, {x = coords.x, y = coords.y, groundZ})
+    table.insert(flares, {x = coords.x, y = coords.y, z = groundZ})
 
 
     RemoveNamedPtfxAsset(PtfxAsset) -- Clean up
     return flares
+end
+
+function PlaceLocationFlares(flares)
+    local PtfxAsset = "core"
+    if not HasNamedPtfxAssetLoaded(PtfxAsset) then
+        RequestNamedPtfxAsset(PtfxAsset)
+        while not HasNamedPtfxAssetLoaded(PtfxAsset) do
+            Citizen.Wait(10)
+        end
+    end
+
+    for k, flare in pairs(flares) do
+        UseParticleFxAssetNextCall(PtfxAsset) -- Prepare the Particle FX for the next upcomming Particle FX call
+        local part = StartParticleFxLoopedAtCoord("exp_grd_flare", flare.x, flare.y, flare.z, 0.0, 0.0, 0.0, 1.0, false, false, false, false)
+        table.insert(particles, part)
+    end
+
+    RemoveNamedPtfxAsset(PtfxAsset) -- Clean up
 end
 
 function ReqMod(model)
@@ -110,12 +159,12 @@ end)
 -- RegisterCommand("landplane", function ()
 -- end)
 
-RegisterCommand("startvfx", function ()
-    local blip = GetFirstBlipInfoId(8)
-    if not DoesBlipExist(blip) then return end
-    local blipCoords = GetBlipCoords(blip)
-    TriggerServerEvent("tis-skydiving:server:CreateLandingZone", blipCoords)
-end)
+-- RegisterCommand("startvfx", function ()
+--     local blip = GetFirstBlipInfoId(8)
+--     if not DoesBlipExist(blip) then return end
+--     local blipCoords = GetBlipCoords(blip)
+--     TriggerServerEvent("tis-skydiving:server:CreateLandingZone", blipCoords)
+-- end)
 
 RegisterCommand("endvfx", function ()
     TriggerServerEvent("tis-skydiving:server:DeleteLandingZone")
@@ -216,6 +265,51 @@ Citizen.CreateThread(function ()
     })
 end)
 
-RegisterNetEvent('tis-skydiving:client:SetInTeam', function()
-    inTeam = QBCore.Functions.HasItem("parachute")
+-- Citizen.CreateThread(function ()
+--     while true do
+--         if inTeam then
+            
+--             Citizen.Wait(0)
+--         else
+--             Citizen.Wait(1000)
+--         end
+--     end
+-- end)
+
+RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares)
+    inTeam = QBCore.Functions.HasItem(Config.Tracker)
+
+    if inTeam then
+        local dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
+        SetBlipSprite (dropzone, 164)
+        SetBlipDisplay(dropzone, 4)
+        -- SetBlipScale(dropzone, 1)
+        SetBlipAsShortRange(dropzone, true)
+        SetBlipColour(dropzone, 3)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentSubstringPlayerName("Drop Zone")
+        EndTextCommandSetBlipName(dropzone)
+    end
+
+    PlaceLocationFlares(flares)
+end)
+
+RegisterNetEvent('tis-skydiving:client:SetInTeam', function(pos, flares)
+end)
+
+RegisterNetEvent('tis-skydiving:client:UpdateBlips', function(players)
+    if TeamBlips then
+        for k, v in pairs(TeamBlips) do
+            RemoveBlip(v)
+        end
+    end
+    if QBCore.Functions.HasItem(Config.Tracker) then
+        TeamBlips = {}
+        if players then
+            for k, data in pairs(players) do
+                local id = GetPlayerFromServerId(data.source)
+                CreateTeamBlips(id, data.label, data.location)
+            end
+        end
+    end
 end)

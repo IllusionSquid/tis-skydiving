@@ -1,5 +1,7 @@
 Config = {}
 
+Config.Tracker = "parachute"
+
 Config.Plane = {
     spawn = {
         pos = vector3(-963.81, -2984.29, 13.95),

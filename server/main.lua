@@ -45,7 +45,6 @@ RegisterServerEvent("tis-skydiving:server:AddLandingZone")
 AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, vehHeading, pos, flares, radius)
     local src = source
 	local Player = QBCore.Functions.GetPlayer(src)
-    print(radius)
 	if Player.PlayerData.job.name == "skydive" then
         MySQL.Async.insert('INSERT INTO skydive_location (label, veh_pos, veh_heading, land_pos, flares, radius) VALUES (:label, :veh_pos, :veh_heading, :land_pos, :flares, :radius)', {
             label = label,
@@ -61,6 +60,19 @@ AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, 
 	end
 end)
 
+RegisterServerEvent("tis-skydiving:server:RemoveLandingZone")
+AddEventHandler("tis-skydiving:server:RemoveLandingZone", function (id)
+    local src = source
+	local Player = QBCore.Functions.GetPlayer(src)
+	if Player.PlayerData.job.name == "skydive" then
+        MySQL.Async.execute('DELETE FROM skydive_location WHERE id=:id;', {
+            id = id
+        })
+	else
+		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
+        -- Hacker?
+	end
+end)
 -- RegisterServerEvent("inventory:server:SaveInventory")
 -- AddEventHandler("inventory:server:SaveInventory", function ()
 --     TriggerClientEvent("tis-skydiving:client:SetInTeam", source)
@@ -86,6 +98,7 @@ QBCore.Commands.Add("skydive", "Opens skydiving menu", {}, false, function(sourc
                 local locations = {}
                 for _, row in pairs(result) do
                     table.insert(locations, {
+                        id = row.id,
                         label = row.label,
                         veh_pos = json.decode(row.veh_pos),
                         veh_heading = row.veh_pos,

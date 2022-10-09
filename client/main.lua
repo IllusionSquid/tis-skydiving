@@ -246,7 +246,7 @@ Citizen.CreateThread(function ()
         },
         distance = 2.5
     })
-    print(#Config)
+
     exports['qb-target']:AddBoxZone("SkydivingPlane", Config.Plane.spawn.pos, 20, 20, {
         name = "SkydivingPlane",
         heading = Config.Plane.spawn.heading,

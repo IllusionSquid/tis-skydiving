@@ -49,13 +49,60 @@ local menuLocation = 'topright' -- e.g. topright (default), topleft, bottomright
 local menu1 = MenuV:CreateMenu(false, "Skydiving", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test1')
 
 local menu_jumps = MenuV:CreateMenu(false, "Skydiving Locations", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test2')
-local menu_creation = MenuV:CreateMenu(false, "Skydiving Creation", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test3')
+local menu_jumps_options = MenuV:CreateMenu(false, "Skydiving Locations", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test3')
+local menu_jumps_options_delete = MenuV:CreateMenu(false, "REMOVE LOCATION?", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test4')
+local menu_creation = MenuV:CreateMenu(false, "Skydiving Creation", menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test5')
 
 menu1:On("close", function ()
     menu1.ClearItems(menu1, true)
     menu1.ClearItems(menu_jumps, true)
 end)
 
+local start_button = menu_jumps_options:AddButton({
+    icon = "📍",
+    label = "Start Jump",
+    value = "location",
+    description = "Starts the skydiving session",
+    select = function (btn)
+        print(btn.location)
+        TriggerServerEvent("tis-skydiving:server:StartSkydiving", btn.location.veh_pos, btn.location.veh_heading, btn.location.land_pos, btn.location.flares, btn.location.radius)
+        MenuV:CloseMenu(menu_jumps_options)
+        MenuV:CloseMenu(menu_jumps)
+        MenuV:CloseMenu(menu1)
+    end
+})
+
+local delete_button = menu_jumps_options:AddButton({
+    icon = "🗑️",
+    label = "Delete Jump",
+    value = menu_jumps_options_delete,
+    description = "Deletes the jump",
+})
+
+menu_jumps_options_delete:AddButton({
+    icon = "🛑",
+    label = "No, take me back",
+    value = "jump",
+    description = "Deleteds the jump",
+    select = function (_)
+        MenuV:CloseMenu(menu_jumps_options_delete)
+        MenuV:CloseMenu(menu_jumps_options)
+    end
+})
+
+local confirm_button = menu_jumps_options_delete:AddButton({
+    icon = "🗑️",
+    label = "Yes, I'm aware this is permanently deleted",
+    value = "jump",
+    description = "Deleteds the jump",
+    select = function (btn)
+        TriggerServerEvent("tis-skydiving:server:RemoveLandingZone", btn.location.id)
+        MenuV:CloseMenu(menu_jumps_options_delete)
+        MenuV:CloseMenu(menu_jumps_options)
+        MenuV:CloseMenu(menu_jumps)
+        MenuV:CloseMenu(menu1)
+    end
+})
 
 menu_creation:On("open", function ()
     RemoveFlares()
@@ -180,11 +227,10 @@ RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveS
             menu_jumps:AddButton({
                 icon = "",
                 label = location.label,
-                value = location.label,
+                value = menu_jumps_options,
                 select = function (_)
-                    TriggerServerEvent("tis-skydiving:server:StartSkydiving", location.veh_pos, location.veh_heading, location.land_pos, location.flares, location.radius)
-                    MenuV:CloseMenu(menu_jumps)
-                    MenuV:CloseMenu(menu1)
+                    start_button.location = location
+                    confirm_button.location = location
                 end
             })
         end

@@ -3,16 +3,7 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local inSkydiveSession = false
 local veh = nil
 
--- RegisterServerEvent("tis-skydiving:server:CreateLandingZone")
--- AddEventHandler("tis-skydiving:server:CreateLandingZone", function (coords)
---     TriggerClientEvent("tis-skydiving:client:PlaceFlares", -1, coords, 15, 6)
--- end)
-
-RegisterServerEvent("tis-skydiving:server:DeleteLandingZone")
-AddEventHandler("tis-skydiving:server:DeleteLandingZone", function ()
-    TriggerClientEvent("tis-skydiving:client:RemoveFlares", -1)
-end)
-
+-- Skydiving Session events
 RegisterServerEvent("tis-skydiving:server:StartSkydiving")
 AddEventHandler("tis-skydiving:server:StartSkydiving", function (vehPos, vehHeading, pos, flares, radius)
     local src = source
@@ -41,6 +32,7 @@ AddEventHandler("tis-skydiving:server:EndSkydiving", function ()
     inSkydiveSession = false
 end)
 
+-- Landing zone management
 RegisterServerEvent("tis-skydiving:server:AddLandingZone")
 AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, vehHeading, pos, flares, radius)
     local src = source
@@ -73,12 +65,8 @@ AddEventHandler("tis-skydiving:server:RemoveLandingZone", function (id)
         -- Hacker?
 	end
 end)
--- RegisterServerEvent("inventory:server:SaveInventory")
--- AddEventHandler("inventory:server:SaveInventory", function ()
---     TriggerClientEvent("tis-skydiving:client:SetInTeam", source)
---     UpdateBlips();
--- end)
 
+-- Commands
 QBCore.Commands.Add("landplane", "Tell Autopilot to land and skydive yourself ;)", {}, false, function(source, args)
 	local src = source
 	local Player = QBCore.Functions.GetPlayer(src)

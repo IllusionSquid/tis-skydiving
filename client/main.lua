@@ -1,37 +1,10 @@
-local QBCore = exports['qb-core']:GetCoreObject()
--- local PlayerJob = nil
-local inTeam = false
-
--- RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
---     PlayerJob = JobInfo
--- end)
-
--- RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
---     Wait(1000)
---     QBCore.Functions.GetPlayerData(function(PlayerData)
---         PlayerJob = PlayerData.job
---     end)
--- end)
-
--- AddEventHandler('onResourceStart', function(resource)
---     if resource == GetCurrentResourceName() then
---         while QBCore == nil do
---             Citizen.Wait(1)
---         end
---         QBCore.Functions.GetPlayerData(function(PlayerData)
---             if PlayerData.job ~= nil then
---                 PlayerJob = PlayerData.job
---             end
---             print(PlayerData.job.name)
---         end)
---     end
--- end)
+QBCore = exports['qb-core']:GetCoreObject()
 
 local TeamBlips = {}
 local dropzone = nil
 local dropRadiusBlip = nil
+local particles = {}
 
--- Functions
 local function CreateTeamBlips(playerId, playerLabel, playerLocation)
     local ped = GetPlayerPed(playerId)
     local blip = GetBlipFromEntity(ped)
@@ -57,11 +30,8 @@ local function CreateTeamBlips(playerId, playerLabel, playerLocation)
     --     -- Ensure we remove our own blip.
     --     RemoveBlip(blip)
     -- end
-    -- print("ejijf")
 end
 
-local particle = nil
-local particles = {}
 
 function RemoveFlares()
     for k, v in pairs(particles) do
@@ -92,9 +62,7 @@ function PlaceFlares(coords, radius, count)
             adjusted.y,
             adjusted.z
         )
-        -- print(groundZ)
-        -- adjusted.z = adjusted - groundZ
-        -- print(offset.x, offset.y)
+
         if not retval then
             groundZ = adjusted.z
         end
@@ -111,7 +79,7 @@ function PlaceFlares(coords, radius, count)
             coords.y,
             coords.z
         )
-    
+
     if not retval then
         groundZ = coords.z
     end
@@ -152,48 +120,6 @@ function ReqMod(model)
     end
 end
 
--- AddEventHandler('onResourceStop', function(resource)
---     if resource == GetCurrentResourceName() then
---         StopParticleFxLooped(particle)
---     end
--- end)
-
--- RegisterCommand("landplane", function ()
--- end)
-
--- RegisterCommand("startvfx", function ()
---     local blip = GetFirstBlipInfoId(8)
---     if not DoesBlipExist(blip) then return end
---     local blipCoords = GetBlipCoords(blip)
---     TriggerServerEvent("tis-skydiving:server:CreateLandingZone", blipCoords)
--- end)
-
--- RegisterCommand("endvfx", function ()
---     TriggerServerEvent("tis-skydiving:server:DeleteLandingZone")
--- end)
-
--- RegisterNetEvent("tis-skydiving:client:PlaceFlares")
--- AddEventHandler("tis-skydiving:client:PlaceFlares", PlaceFlares)
-
-
-RegisterNetEvent("tis-skydiving:client:RemoveFlares")
-AddEventHandler("tis-skydiving:client:RemoveFlares", RemoveFlares)
-
-RegisterNetEvent('tis-skydiving:client:OpenStore', function()
-    TriggerServerEvent("inventory:server:OpenInventory", "shop", "skydiving", Config.Items)
-end)
-
-RegisterNetEvent('tis-skydiving:client:SpawnPlane', function()
-    QBCore.Functions.SpawnVehicle(Config.Plane.model, function(veh)
-            SetVehicleNumberPlateText(veh, "SkwidDiving")
-            exports['LegacyFuel']:SetFuel(veh, 100.0)
-            TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-            TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-            SetVehicleEngineOn(veh, true, true)
-            SetEntityHeading(veh, 60)
-    end, vector4(Config.Plane.spawn.pos.x, Config.Plane.spawn.pos.y, Config.Plane.spawn.pos.z, 60), true)
-end)
-
 RegisterNetEvent('tis-skydiving:client:LandPlane', function()
     local ped = GetPlayerPed(-1)
     local vehicle = GetVehiclePedIsIn(ped, false);
@@ -219,69 +145,8 @@ RegisterNetEvent('tis-skydiving:client:LandPlane', function()
     DeleteEntity(ped)
 end)
 
--- Citizen.CreateThread(function ()
---     local veh = nil
---     while true do
---         Citizen.Wait(10)
---     end
--- end)
-
-
-Citizen.CreateThread(function ()
-    exports['qb-target']:AddBoxZone("SkydivingStore", vector3(-912.59, -3022.16, 13.95), 1, 1, {
-        name = "SkydivingStore",
-        heading = 240,
-        debugPoly = false,
-        minZ = 12.95,
-        maxZ = 14.95,
-    }, {
-        options = {
-            {
-                type = "client",
-                event = "tis-skydiving:client:OpenStore",
-                icon = "fas fa-sign-in-alt",
-                label = "Store",
-                job = "skydive",
-            },
-        },
-        distance = 2.5
-    })
-
-    exports['qb-target']:AddBoxZone("SkydivingPlane", Config.Plane.spawn.pos, 20, 20, {
-        name = "SkydivingPlane",
-        heading = Config.Plane.spawn.heading,
-        debugPoly = false,
-        minZ = Config.Plane.spawn.pos.z - 2,
-        maxZ = Config.Plane.spawn.pos.z + 1,
-    }, {
-        options = {
-            {
-                type = "client",
-                event = "tis-skydiving:client:SpawnPlane",
-                icon = "fas fa-sign-in-alt",
-                label = "Spawn Plane",
-                job = "skydive",
-            },
-        },
-        distance = 2.5
-    })
-end)
-
--- Citizen.CreateThread(function ()
---     while true do
---         if inTeam then
-            
---             Citizen.Wait(0)
---         else
---             Citizen.Wait(1000)
---         end
---     end
--- end)
-
 RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares, radius)
-    inTeam = QBCore.Functions.HasItem(Config.Tracker)
-
-    if inTeam then
+    if QBCore.Functions.HasItem(Config.Tracker) then
         dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
         SetBlipSprite (dropzone, 164)
         SetBlipDisplay(dropzone, 6)
@@ -311,9 +176,7 @@ RegisterNetEvent('tis-skydiving:client:EndSkydiving', function()
     RemoveFlares()
 end)
 
-RegisterNetEvent('tis-skydiving:client:SetInTeam', function(pos, flares)
-end)
-
+-- Radar
 RegisterNetEvent('tis-skydiving:client:UpdateBlips', function(players)
     if TeamBlips then
         for k, v in pairs(TeamBlips) do

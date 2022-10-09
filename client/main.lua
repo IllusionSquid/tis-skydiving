@@ -28,6 +28,7 @@ local inTeam = false
 -- end)
 
 local TeamBlips = {}
+local dropzone = nil
 
 -- Functions
 local function CreateTeamBlips(playerId, playerLabel, playerLocation)
@@ -150,11 +151,11 @@ function ReqMod(model)
     end
 end
 
-AddEventHandler('onResourceStop', function(resource)
-    if resource == GetCurrentResourceName() then
-        StopParticleFxLooped(particle)
-    end
-end)
+-- AddEventHandler('onResourceStop', function(resource)
+--     if resource == GetCurrentResourceName() then
+--         StopParticleFxLooped(particle)
+--     end
+-- end)
 
 -- RegisterCommand("landplane", function ()
 -- end)
@@ -166,12 +167,12 @@ end)
 --     TriggerServerEvent("tis-skydiving:server:CreateLandingZone", blipCoords)
 -- end)
 
-RegisterCommand("endvfx", function ()
-    TriggerServerEvent("tis-skydiving:server:DeleteLandingZone")
-end)
+-- RegisterCommand("endvfx", function ()
+--     TriggerServerEvent("tis-skydiving:server:DeleteLandingZone")
+-- end)
 
-RegisterNetEvent("tis-skydiving:client:PlaceFlares")
-AddEventHandler("tis-skydiving:client:PlaceFlares", PlaceFlares)
+-- RegisterNetEvent("tis-skydiving:client:PlaceFlares")
+-- AddEventHandler("tis-skydiving:client:PlaceFlares", PlaceFlares)
 
 
 RegisterNetEvent("tis-skydiving:client:RemoveFlares")
@@ -280,7 +281,7 @@ RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares)
     inTeam = QBCore.Functions.HasItem(Config.Tracker)
 
     if inTeam then
-        local dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
+        dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
         SetBlipSprite (dropzone, 164)
         SetBlipDisplay(dropzone, 4)
         -- SetBlipScale(dropzone, 1)
@@ -292,6 +293,14 @@ RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares)
     end
 
     PlaceLocationFlares(flares)
+end)
+
+RegisterNetEvent('tis-skydiving:client:EndSkydiving', function()
+    if dropzone ~= nil then
+        RemoveBlip(dropzone)
+        dropzone = nil
+    end
+    RemoveFlares()
 end)
 
 RegisterNetEvent('tis-skydiving:client:SetInTeam', function(pos, flares)

@@ -36,7 +36,7 @@ end)
 
 RegisterServerEvent("tis-skydiving:server:EndSkydiving")
 AddEventHandler("tis-skydiving:server:EndSkydiving", function ()
-    TriggerClientEvent("tis-skydiving:client:RemoveFlares", -1)
+    TriggerClientEvent("tis-skydiving:client:EndSkydiving", -1)
     DeleteEntity(veh)
     inSkydiveSession = false
 end)

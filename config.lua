@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Tracker = "parachute"
+Config.Tracker = "skytracker"
 
 Config.Plane = {
     spawn = {
@@ -23,7 +23,7 @@ Config.runways = {
 
 Config.Items = {
     label = "Skydiving Store",
-    slots = 2,
+    slots = 3,
     items = {
         [1] = {
             name = "radio",
@@ -40,6 +40,14 @@ Config.Items = {
             info = {},
             type = "item",
             slot = 2,
+        },
+        [3] = {
+            name = "skytracker",
+            price = 100,
+            amount = 50,
+            info = {},
+            type = "item",
+            slot = 3,
         }
     }
 }

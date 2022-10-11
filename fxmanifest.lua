@@ -13,12 +13,14 @@ client_scripts {
     'client/main.lua',
 	'client/menu.lua',
 	'client/interactions.lua',
+	'client/radar.lua',
 	'config.lua'
 }
 
 server_scripts {
 	'@oxmysql/lib/MySQL.lua',
     'server/main.lua',
+	'server/radar.lua',
 	'config.lua'
 }
 

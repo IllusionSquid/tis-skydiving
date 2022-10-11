@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local QBCore = exports['qb-core']:GetCoreObject()
+QBCore = exports['qb-core']:GetCoreObject()
 
 local inSkydiveSession = false
 local veh = nil
@@ -119,35 +119,4 @@ QBCore.Commands.Add("skydive", "Opens skydiving menu", {}, false, function(sourc
 	else
 		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
 	end
-end)
-
--- Radar for the skydiving team
-local function UpdateBlips()
-    local teamPlayers = {}
-    local players = QBCore.Functions.GetQBPlayers()
-    for k, v in pairs(players) do
-        -- print(v.Functions.GetItemByName(Config.Tracker) ~= nil)
-        if v.Functions.GetItemByName(Config.Tracker) ~= nil then
-            local coords = GetEntityCoords(GetPlayerPed(v.PlayerData.source))
-            local heading = GetEntityHeading(GetPlayerPed(v.PlayerData.source))
-            teamPlayers[#teamPlayers+1] = {
-                source = v.PlayerData.source,
-                label = v.PlayerData.charinfo.lastname,
-                location = {
-                    x = coords.x,
-                    y = coords.y,
-                    z = coords.z,
-                    w = heading
-                }
-            }
-        end
-    end
-    TriggerClientEvent("tis-skydiving:client:UpdateBlips", -1, teamPlayers)
-end
-
-CreateThread(function()
-    while true do
-        Wait(10000)
-        UpdateBlips()
-    end
 end)

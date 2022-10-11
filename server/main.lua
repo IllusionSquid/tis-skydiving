@@ -39,7 +39,7 @@ AddEventHandler("tis-skydiving:server:StartSkydiving", function (vehPos, vehHead
         Citizen.Wait(3000)
         TriggerClientEvent("vehiclekeys:client:SetOwner", src, QBCore.Shared.Trim(GetVehicleNumberPlateText(veh)))
 	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
+		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
 	end
 end)
 
@@ -65,7 +65,7 @@ AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, 
             radius = radius
         })
 	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
+		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
         -- Hacker?
 	end
 end)
@@ -79,7 +79,7 @@ AddEventHandler("tis-skydiving:server:RemoveLandingZone", function (id)
             id = id
         })
 	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
+		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
         -- Hacker?
 	end
 end)
@@ -91,7 +91,7 @@ QBCore.Commands.Add("landplane", "Tell Autopilot to land and skydive yourself ;)
 	if Player.PlayerData.job.name == "skydive" then
 		TriggerClientEvent("tis-skydiving:client:LandPlane", src)
 	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
+		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
 	end
 end)
 
@@ -117,6 +117,6 @@ QBCore.Commands.Add("skydive", "Opens skydiving menu", {}, false, function(sourc
             end
         end)
 	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skyding instructor", "error")
+		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
 	end
 end)

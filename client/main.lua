@@ -34,7 +34,6 @@ function PlaceFlares(coords, radius, count)
     local PtfxAsset = "core"
     if not HasNamedPtfxAssetLoaded(PtfxAsset) then
         RequestNamedPtfxAsset(PtfxAsset)
-        print(PtfxAsset)
         while not HasNamedPtfxAssetLoaded(PtfxAsset) do
             Citizen.Wait(10)
         end
@@ -139,7 +138,6 @@ RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares, ra
         dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
         SetBlipSprite (dropzone, 164)
         SetBlipDisplay(dropzone, 6)
-        -- SetBlipScale(dropzone, 1)
         SetBlipAsShortRange(dropzone, false)
         SetBlipColour(dropzone, 3)
         BeginTextCommandSetBlipName("STRING")

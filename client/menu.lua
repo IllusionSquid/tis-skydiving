@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local inCreation = false
 local pos = nil
 local count = 6
 local radius = 5
@@ -82,7 +81,6 @@ local start_button = menu_jumps_options:AddButton({
     value = "location",
     description = "Starts the skydiving session",
     select = function (btn)
-        print(btn.location)
         TriggerServerEvent("tis-skydiving:server:StartSkydiving", btn.location.veh_pos, btn.location.veh_heading, btn.location.land_pos, btn.location.flares, btn.location.radius)
         MenuV:CloseMenu(menu_jumps_options)
         MenuV:CloseMenu(menu_jumps)
@@ -130,14 +128,12 @@ menu_creation:On("open", function ()
     vehPos = GetEntityCoords(ped)
     vehHeading = GetEntityHeading(ped)
     updateVehicle()
-    inCreation = true
 end)
 
 -- Handle canceled creation
 menu_creation:On("close", function ()
     RemoveFlares()
     removeVehicle()
-    inCreation = false
 end)
 
 local menu_creation_location = menu_creation:AddButton({
@@ -214,7 +210,6 @@ menu_creation_finish:On("select", function (_)
 end)
 
 RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveSession)
-    print(inSkydiveSession)
     if inSkydiveSession then
         menu1:AddButton({
             icon = '🛑',

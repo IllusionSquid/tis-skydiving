@@ -32,15 +32,15 @@ AddEventHandler("tis-skydiving:server:StartSkydiving", function (vehPos, vehHead
         return
     end
 
-	if Player.PlayerData.job.name == "skydive" then
+    if Player.PlayerData.job.name == "skydive" then
         TriggerClientEvent("tis-skydiving:client:StartSkydiving", -1, pos, flares, radius)
         veh = CreateVehicle(GetHashKey(Config.Transport.model), vehPos.x, vehPos.y, vehPos.z, vehHeading, true, true)
         inSkydiveSession = true
         Citizen.Wait(3000)
         TriggerClientEvent("vehiclekeys:client:SetOwner", src, QBCore.Shared.Trim(GetVehicleNumberPlateText(veh)))
-	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
-	end
+    else
+        TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
+    end
 end)
 
 RegisterServerEvent("tis-skydiving:server:EndSkydiving")
@@ -54,8 +54,8 @@ end)
 RegisterServerEvent("tis-skydiving:server:AddLandingZone")
 AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, vehHeading, pos, flares, radius)
     local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	if Player.PlayerData.job.name == "skydive" then
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player.PlayerData.job.name == "skydive" then
         MySQL.Async.insert('INSERT INTO skydive_location (label, veh_pos, veh_heading, land_pos, flares, radius) VALUES (:label, :veh_pos, :veh_heading, :land_pos, :flares, :radius)', {
             label = label,
             veh_pos = json.encode(vehPos),
@@ -64,41 +64,41 @@ AddEventHandler("tis-skydiving:server:AddLandingZone", function (label, vehPos, 
             flares = json.encode(flares),
             radius = radius
         })
-	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
+    else
+        TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
         -- Hacker?
-	end
+    end
 end)
 
 RegisterServerEvent("tis-skydiving:server:RemoveLandingZone")
 AddEventHandler("tis-skydiving:server:RemoveLandingZone", function (id)
     local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	if Player.PlayerData.job.name == "skydive" then
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player.PlayerData.job.name == "skydive" then
         MySQL.Async.execute('DELETE FROM skydive_location WHERE id=:id;', {
             id = id
         })
-	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
+    else
+        TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
         -- Hacker?
-	end
+    end
 end)
 
 -- Commands
 QBCore.Commands.Add("landplane", "Tell Autopilot to land and skydive yourself ;)", {}, false, function(source, args)
-	local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	if Player.PlayerData.job.name == "skydive" then
-		TriggerClientEvent("tis-skydiving:client:LandPlane", src)
-	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
-	end
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player.PlayerData.job.name == "skydive" then
+        TriggerClientEvent("tis-skydiving:client:LandPlane", src)
+    else
+        TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
+    end
 end)
 
 QBCore.Commands.Add("skydive", "Opens skydiving menu", {}, false, function(source, args)
-	local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	if Player.PlayerData.job.name == "skydive" then
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player.PlayerData.job.name == "skydive" then
         MySQL.query('SELECT * FROM skydive_location', {}, function(result)
             if result ~= nil then
                 local locations = {}
@@ -116,7 +116,7 @@ QBCore.Commands.Add("skydive", "Opens skydiving menu", {}, false, function(sourc
                 TriggerClientEvent("tis-skydiving:client:OpenMenu", src, locations, inSkydiveSession)
             end
         end)
-	else
-		TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
-	end
+    else
+        TriggerClientEvent('QBCore:Notify', src, "You are not a skydiving instructor", "error")
+    end
 end)

@@ -39,19 +39,14 @@ function PlaceFlares(coords, radius, count)
         end
     end
 
+    -- Circle flares
     local p = 360 / count
     for i = 0, count - 1, 1 do
         local rad = (p * i) * math.pi / 180
         local offset = vector3(radius * math.sin(rad), radius * math.cos(rad), 0)
         local adjusted = coords + offset
-        local retval --[[ boolean ]], groundZ --[[ number ]] =
-        GetGroundZFor_3dCoord(
-            adjusted.x,
-            adjusted.y,
-            adjusted.z
-        )
-
-        if not retval then
+        local foundGround, groundZ = GetGroundZFor_3dCoord(adjusted.x, adjusted.y, adjusted.z)
+        if not foundGround then
             groundZ = adjusted.z
         end
 
@@ -61,14 +56,9 @@ function PlaceFlares(coords, radius, count)
         table.insert(flares, {x = adjusted.x, y = adjusted.y, z = groundZ})
     end
 
-    local retval --[[ boolean ]], groundZ --[[ number ]] =
-        GetGroundZFor_3dCoord(
-            coords.x,
-            coords.y,
-            coords.z
-        )
-
-    if not retval then
+    -- Center flare
+    local foundGround, groundZ = GetGroundZFor_3dCoord(coords.x, coords.y, coords.z)
+    if not foundGround then
         groundZ = coords.z
     end
 
@@ -76,7 +66,6 @@ function PlaceFlares(coords, radius, count)
     local part = StartParticleFxLoopedAtCoord("exp_grd_flare", coords.x, coords.y, groundZ, 0.0, 0.0, 1.0, 1.0, false, false, false, false)
     table.insert(particles, part)
     table.insert(flares, {x = coords.x, y = coords.y, z = groundZ})
-
 
     RemoveNamedPtfxAsset(PtfxAsset) -- Clean up
     return flares
@@ -91,7 +80,7 @@ function PlaceLocationFlares(flares)
         end
     end
 
-    for k, flare in pairs(flares) do
+    for _, flare in pairs(flares) do
         UseParticleFxAssetNextCall(PtfxAsset) -- Prepare the Particle FX for the next upcomming Particle FX call
         local part = StartParticleFxLoopedAtCoord("exp_grd_flare", flare.x, flare.y, flare.z, 0.0, 0.0, 0.0, 1.0, false, false, false, false)
         table.insert(particles, part)

@@ -36,7 +36,18 @@ The landing zones need to be added by the skydiving instructor manually using th
 5. Add the line `ensure tis-skydiving` in your `server.cfg`
 6. Add this to your `items.lua:QBShared.Items`:
 ```lua
-['skytracker'] 			 	 	 = {['name'] = 'skytracker', 			  		['label'] = 'Skydiving Tracker', 		['weight'] = 500, 		['type'] = 'item', 		['image'] = 'fitbit.png', 				['unique'] = true, 		['useable'] = false, 	['shouldClose'] = true,    ['combinable'] = nil,   ['description'] = 'Gives skydiving team radar'},
+['skytracker'] = {
+    ['name'] = 'skytracker',
+    ['label'] = 'Skydiving Tracker',
+    ['weight'] = 500,
+    ['type'] = 'item',
+    ['image'] = 'fitbit.png',
+    ['unique'] = true,
+    ['useable'] = false,
+    ['shouldClose'] = true,
+    ['combinable'] = nil,
+    ['description'] = 'Gives skydiving team radar'
+},
 ```
 7. Add this to your `jobs.lua:QBShared.Jobs`:
 ```lua

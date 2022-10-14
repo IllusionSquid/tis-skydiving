@@ -14,7 +14,7 @@ A script that adds a skydiving instructor job. This adds a couple quality of lif
 - A command for the instructor to put the plane on autopilot so they can skydive themselves
 
 ### Skydiving sessions
-The instructor can start a session using the menu. When a session is started, it will put a marker on the map of everyone that has the skydiving tracker in their inventory. On that spot there will be a cirle of flares indicating the landing zone. As well as a vehicle to transport people back.
+The instructor can start a session using the menu. When a session is started, it will put a marker on the map of everyone that has the skydiving tracker in their inventory. On that spot there will be a circle of flares indicating the landing zone. As well as a vehicle to transport people back.
 
 The landing zones need to be added by the skydiving instructor manually using the menu. These zones are saved in a database table.
 

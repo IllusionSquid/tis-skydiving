@@ -24,7 +24,7 @@ local vehHeading = nil
 local veh = nil
 local flares = {}
 
-local function LocalInput(text, number, windows)
+local function localInput(text, number, windows)
     AddTextEntry("FMMC_MPM_NA", text)
     DisplayOnscreenKeyboard(1, "FMMC_MPM_NA", "", windows or "", "", "", "", number or 30)
     while (UpdateOnscreenKeyboard() == 0) do
@@ -201,7 +201,7 @@ local menu_creation_finish = menu_creation:AddButton({
 })
 
 menu_creation_finish:On("select", function (_)
-    local label = LocalInput("Landing Zone Name", 255)
+    local label = localInput("Landing Zone Name", 255)
     TriggerServerEvent("tis-skydiving:server:AddLandingZone", label, vehPos, vehHeading, pos, flares, radius)
     count = 6
     radius = 5
@@ -235,7 +235,7 @@ RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveS
             value = menu_creation,
             description = "Jump Locations"
         })
-        for k, location in pairs(locations) do
+        for _, location in pairs(locations) do
 
             menu_jumps:AddButton({
                 icon = "",

@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 ]]
 local TeamBlips = {}
 
-local function CreateTeamBlips(playerId, playerLabel, playerLocation)
+local function createTeamBlips(playerId, playerLabel, playerLocation)
     local ped = GetPlayerPed(playerId)
     local blip = GetBlipFromEntity(ped)
     if not DoesBlipExist(blip) then
@@ -49,16 +49,16 @@ end
 
 RegisterNetEvent('tis-skydiving:client:UpdateBlips', function(players)
     if TeamBlips then
-        for k, v in pairs(TeamBlips) do
+        for _, v in pairs(TeamBlips) do
             RemoveBlip(v)
         end
     end
     if QBCore.Functions.HasItem(Config.Tracker) then
         TeamBlips = {}
         if players then
-            for k, data in pairs(players) do
+            for _, data in pairs(players) do
                 local id = GetPlayerFromServerId(data.source)
-                CreateTeamBlips(id, data.label, data.location)
+                createTeamBlips(id, data.label, data.location)
             end
         end
     end

@@ -75,6 +75,7 @@ menu1:On("close", function ()
     menu1.ClearItems(menu_jumps, true)
 end)
 
+-- Skydiving location menu
 local start_button = menu_jumps_options:AddButton({
     icon = "📍",
     label = "Start Jump",
@@ -95,6 +96,7 @@ local delete_button = menu_jumps_options:AddButton({
     description = "Deletes the jump",
 })
 
+-- Deletion menu
 menu_jumps_options_delete:AddButton({
     icon = "🛑",
     label = "No, take me back",
@@ -120,6 +122,7 @@ local confirm_button = menu_jumps_options_delete:AddButton({
     end
 })
 
+-- Creation menu
 menu_creation:On("open", function ()
     RemoveFlares()
     pos = GetEntityCoords(GetPlayerPed(-1))
@@ -130,7 +133,6 @@ menu_creation:On("open", function ()
     updateVehicle()
 end)
 
--- Handle canceled creation
 menu_creation:On("close", function ()
     RemoveFlares()
     removeVehicle()
@@ -208,6 +210,7 @@ menu_creation_finish:On("select", function (_)
     MenuV:CloseMenu(menu_creation)
     MenuV:CloseMenu(menu1)
 end)
+
 
 RegisterNetEvent('tis-skydiving:client:OpenMenu', function(locations, inSkydiveSession)
     if inSkydiveSession then

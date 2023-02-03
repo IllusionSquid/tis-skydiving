@@ -22,6 +22,23 @@ local dropzone = nil
 local dropRadiusBlip = nil
 local particles = {}
 
+function ReqPtfxAsset(ptfxAsset)
+    if not HasNamedPtfxAssetLoaded(ptfxAsset) then
+        RequestNamedPtfxAsset(ptfxAsset)
+        while not HasNamedPtfxAssetLoaded(ptfxAsset) do
+            Citizen.Wait(10)
+        end
+    end
+end
+
+function ReqMod(model)
+    local hash = GetHashKey(model)
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        Wait(0)
+    end
+end
+
 function RemoveFlares()
     for k, v in pairs(particles) do
         StopParticleFxLooped(v)
@@ -29,22 +46,20 @@ function RemoveFlares()
     end
 end
 
+function CalculateFlareOffset(radius, count, flareIndex)
+    local degreePerFlare = 360 / count
+    local rad = (degreePerFlare * flareIndex) * math.pi / 180
+    return vector3(radius * math.sin(rad), radius * math.cos(rad), 0)
+end
+
 function PlaceFlares(coords, radius, count)
     local flares = {}
     local PtfxAsset = "core"
-    if not HasNamedPtfxAssetLoaded(PtfxAsset) then
-        RequestNamedPtfxAsset(PtfxAsset)
-        while not HasNamedPtfxAssetLoaded(PtfxAsset) do
-            Citizen.Wait(10)
-        end
-    end
+    ReqPtfxAsset(PtfxAsset)
 
     -- Circle flares
-    local p = 360 / count
     for i = 0, count - 1, 1 do
-        local rad = (p * i) * math.pi / 180
-        local offset = vector3(radius * math.sin(rad), radius * math.cos(rad), 0)
-        local adjusted = coords + offset
+        local adjusted = coords + CalculateFlareOffset(radius, count, i)
         local foundGround, groundZ = GetGroundZFor_3dCoord(adjusted.x, adjusted.y, adjusted.z)
         if not foundGround then
             groundZ = adjusted.z
@@ -73,12 +88,7 @@ end
 
 function PlaceLocationFlares(flares)
     local PtfxAsset = "core"
-    if not HasNamedPtfxAssetLoaded(PtfxAsset) then
-        RequestNamedPtfxAsset(PtfxAsset)
-        while not HasNamedPtfxAssetLoaded(PtfxAsset) do
-            Citizen.Wait(10)
-        end
-    end
+    ReqPtfxAsset(PtfxAsset)
 
     for _, flare in pairs(flares) do
         UseParticleFxAssetNextCall(PtfxAsset) -- Prepare the Particle FX for the next upcomming Particle FX call
@@ -89,12 +99,26 @@ function PlaceLocationFlares(flares)
     RemoveNamedPtfxAsset(PtfxAsset) -- Clean up
 end
 
-function ReqMod(model)
-    local hash = GetHashKey(model)
-    RequestModel(hash)
-    while not HasModelLoaded(hash) do
-        Wait(0)
-    end
+local function createDropzoneFlagBlip(pos)
+    dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
+    SetBlipSprite (dropzone, 164)
+    SetBlipDisplay(dropzone, 6)
+    SetBlipAsShortRange(dropzone, false)
+    SetBlipColour(dropzone, 3)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentSubstringPlayerName("Drop Zone")
+    EndTextCommandSetBlipName(dropzone)
+end
+
+local function createDropzoneRadiusBlip(pos, radius)
+    dropRadiusBlip = AddBlipForRadius(pos.x, pos.y, pos.z, radius)
+    SetBlipColour(dropRadiusBlip, 3)
+    SetBlipAlpha(dropRadiusBlip, 128)
+end
+
+local function createDropzoneBlips(pos, radius)
+    createDropzoneFlagBlip(pos)
+    createDropzoneRadiusBlip(pos, radius)
 end
 
 RegisterNetEvent('tis-skydiving:client:LandPlane', function()
@@ -124,17 +148,7 @@ end)
 
 RegisterNetEvent('tis-skydiving:client:StartSkydiving', function(pos, flares, radius)
     if QBCore.Functions.HasItem(Config.Tracker) then
-        dropzone = AddBlipForCoord(pos.x, pos.y, pos.z)
-        SetBlipSprite (dropzone, 164)
-        SetBlipDisplay(dropzone, 6)
-        SetBlipAsShortRange(dropzone, false)
-        SetBlipColour(dropzone, 3)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentSubstringPlayerName("Drop Zone")
-        EndTextCommandSetBlipName(dropzone)
-        dropRadiusBlip = AddBlipForRadius(pos.x, pos.y, pos.z, radius)
-        SetBlipColour(dropRadiusBlip, 3)
-        SetBlipAlpha(dropRadiusBlip, 128)
+        createDropzoneBlips(pos, radius)
     end
 
     PlaceLocationFlares(flares)
